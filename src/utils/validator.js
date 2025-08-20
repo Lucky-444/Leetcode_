@@ -3,6 +3,7 @@ const validator = require('validator');
 const validate = (data) => {
     const errors = {};
 
+
     if (!data.email || !data.password || !data.age || !data.role) {
         errors.missingFields = 'All fields are required';
     }
@@ -15,7 +16,8 @@ const validate = (data) => {
         errors.password = 'Password must be at least 4 characters long';
     }
 
-    if (!validator.isInt(data.age, { min: 0 })) {
+    
+    if (!validator.isInt(String(data.age), { min: 0 })) {
         errors.age = 'Age must be a positive integer';
     }
 
@@ -29,4 +31,3 @@ const validate = (data) => {
 }
 
 module.exports = validate;
-
