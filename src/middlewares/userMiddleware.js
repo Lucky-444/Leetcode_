@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.js");
-const redisClient = require("../config/redis.js"); 
+const redisClient = require("../config/redis.js");
 
 const userMiddleware = async (req, res, next) => {
   try {
@@ -14,7 +14,9 @@ const userMiddleware = async (req, res, next) => {
     // Check blocklist first
     const isBlocked = await redisClient.get(`token:${token}`);
     if (isBlocked) {
-      return res.status(403).json({ message: "Token is blocked, please login again" });
+      return res
+        .status(403)
+        .json({ message: "Token is blocked, please login again" });
     }
 
     // Verify JWT
@@ -29,7 +31,7 @@ const userMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized Access" });
     }
 
-    const result = await User.findById(_id);
+    const result = await User.findById(id);
     if (!result) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -37,9 +39,11 @@ const userMiddleware = async (req, res, next) => {
     req.result = result;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Unauthorized Access", error });
+    console.error("JWT Middleware Error:", error);
+    return res
+      .status(401)
+      .json({ message: "Unauthorized Access", error: error.message });
   }
 };
-
 
 module.exports = userMiddleware;
