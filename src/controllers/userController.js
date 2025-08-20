@@ -9,8 +9,9 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Request body is missing" });
     }
 
-    const { name, email, password, age, role } = req.body;
+    const { name, email, password, age } = req.body;
     //first validate the user inputs
+    
     validate(req.body);
 
     //check if user already exists
@@ -26,12 +27,12 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       age,
-      role,
+      role: 'user',
     });
     await newUser.save();
 
     const token = jwt.sign(
-      { _id: newUser._id, email: newUser.email },
+      { _id: newUser._id, email: newUser.email , role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -53,6 +54,59 @@ const registerUser = async (req, res) => {
   }
 };
 
+const registerAdmin = async(req , res) => {
+  try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Request body is missing" });
+    }
+
+    const { name, email, password, age } = req.body;
+
+    // Validate the user inputs
+    validate(req.body);
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      age,
+      role: 'admin',
+    });
+    await newUser.save();
+
+    const token = jwt.sign(
+      { _id: newUser._id, email: newUser.email  , role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // Set cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res
+      .status(201)
+      .json({ message: "Admin registered successfully", user: newUser, token });
+  } catch (error) {
+    console.error("Register Error:", error);
+    res.status(500).json({
+      message: "Error registering admin",
+      error: error.message,
+    });
+  }
+};
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -67,7 +121,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { _id: user._id, email: user.email },
+      { _id: user._id, email: user.email , role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -141,8 +195,12 @@ const getProfile = async (req, res) => {
   }
 };
 
+
+
+
 module.exports = {
   registerUser,
+  registerAdmin,
   loginUser,
   logoutUser,
   forgotPassword,

@@ -1,10 +1,13 @@
 const express = require('express');
-const {registerUser , loginUser , logoutUser , forgotPassword , getProfile} = require('../controllers/userController.js');
-const userMiddleware = require('../middlewares/userMiddleware.js');
+const {registerUser , loginUser , logoutUser , forgotPassword , getProfile , registerAdmin} = require('../controllers/userController.js');
+const {userMiddleware , adminMiddleware } = require('../middlewares/userMiddleware.js');
 const router = express.Router();
 
 //Register
 router.post('/register', registerUser);
+
+//Admin Register
+router.post('/admin/register', adminMiddleware, registerAdmin);
 
 // Login
 router.post('/login', loginUser);

@@ -21,10 +21,6 @@ const validate = (data) => {
         errors.age = 'Age must be a positive integer';
     }
 
-    if (!['user', 'admin'].includes(data.role)) {
-        errors.role = 'Role must be either user or admin';
-    }
-
     if (Object.keys(errors).length > 0) {
         throw new Error(JSON.stringify(errors));
     }
