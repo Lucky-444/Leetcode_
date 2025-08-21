@@ -87,6 +87,8 @@ const adminMiddleware = async (req, res, next) => {
     if (role !== "admin") {
       return res.status(403).json({ message: "Forbidden: Admins only" });
     }
+
+    req.result = result;
     next();
   } catch (error) {
     console.error("Admin Middleware Error:", error);

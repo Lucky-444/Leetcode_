@@ -34,6 +34,12 @@ const problemSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    referenceSolution: [
+      {
+        language: { type: String, required: true },
+        completeCode: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,
