@@ -31,21 +31,28 @@ const createProblem = async (req, res) => {
 
       const languageId = getLanguageId(language);
       //we use batch formed submission
+      // console.log("languageId ===>", languageId);
       const submissions = visibleTestCases.map((testcases) => ({
         source_code: completeCode,
         language_id: languageId,
         stdin: testcases.input,
         expected_output: testcases.output,
       }));
+
+      // console.log("submissions ===>" , submissions);
       //now submit the code submission
       const submitResult = await submitBatch(submissions);
 
-      //after that it gives us a token 
+      // console.log("submitResult ===>", submitResult);
+      //after that it gives us a token
       //we pass these token array to our judge0 to check corresponding status
       //if status id == 3 -> means code is correct and accepted
 
-      const resultToken = submitResult.map((value) => value.token);
+     const resultToken = submitResult.map((value) => value.token);
 
+
+
+      // console.log("result ===>" , resultToken);
       //[token1 , token2 , token3] , comma separated token array
       // -> we need to check the status of these tokens
 
@@ -60,7 +67,7 @@ const createProblem = async (req, res) => {
                 //so that the user can understand what went wrong
           return res.status(400).json({ message: `Submission ${submission.id} is incorrect` });
         } else {
-          console.log(`Submission ${submission.id} is correct`);
+          console.log(`Submission ${submission.language_id} is correct`);
         }
       }
 

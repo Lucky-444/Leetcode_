@@ -13,8 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieparser());
 
 
-app.use('/api/v1/users', authRouter);
-app.use('/api/v1/problem', problemRouter);
+
 
 connectDB();
 redisClient.connect().then(() => {
@@ -23,6 +22,9 @@ redisClient.connect().then(() => {
     console.error("❌ Redis Client Connection Error", err);
 });
 
+
+app.use('/api/v1/users', authRouter);
+app.use('/api/v1/problem', problemRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);

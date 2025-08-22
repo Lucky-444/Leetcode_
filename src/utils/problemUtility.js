@@ -2,13 +2,15 @@ const axios = require("axios");
 
 const getLanguageId = (language) => {
   const languageMap = {
-    javascript: 63,
-    "c++": 54,
-    java: 62,
-    // Add more languages as needed
+    "javascript": 63, // Node.js 18
+    "cpp": 54,        // C++ (GCC 11.2.0)
+    "c++": 54,        // fallback
+    "java": 62,       // Java (OpenJDK 17)
+    "python": 71,     // Python 3.11
   };
-  return languageMap[language.toLowerCase()] || 0;
+  return languageMap[language.toLowerCase()] || null;
 };
+
 
 const submitBatch = async (submissions) => {
   // Submit the batch of code submissions to the judging system
@@ -17,7 +19,7 @@ const submitBatch = async (submissions) => {
     method: "POST",
     url: "https://judge0-ce.p.rapidapi.com/submissions/batch",
     params: {
-      base64_encoded: "true",
+      base64_encoded: "false",
     },
     headers: {
       "x-rapidapi-key": "df200e80a5mshef09baf9ac39068p12c472jsn86143d398045",
@@ -32,10 +34,10 @@ const submitBatch = async (submissions) => {
   async function fetchData() {
     try {
       const response = await axios.request(options);
-      console.log(response.data);
+      console.log("submit response.data ===>", response.data);
       return response.data;
     } catch (error) {
-      console.error(error);
+      console.error('error in submitBatch:', error);
     }
   }
 
@@ -55,7 +57,7 @@ const submitToken = async (resultTokens) => {
     url: "https://judge0-ce.p.rapidapi.com/submissions/batch",
     params: {
       tokens: resultTokens.join(","),
-      base64_encoded: "true",
+      base64_encoded: "false",
       fields: "*",
     },
     headers: {
