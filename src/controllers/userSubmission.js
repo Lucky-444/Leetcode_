@@ -1,0 +1,99 @@
+const Problem = require("../models/problem");
+const Submission = require("../models/submission");
+const { getLanguageId, submitBatch } = require("../utils/problemUtility");
+
+const submitProblem = async (req, res) => {
+  const { id } = req.params;
+  const problemId = req.params.id;
+  const userId = req.result._id;
+  const { code, language } = req.body;
+
+  try {
+    // Validate input
+    if (!problemId || !userId || !code || !language) {
+      return res.status(400).json({ message: "Some Fields are missing" });
+    }
+
+    // Find the problem by ID
+    const problem = await Problem.findById(problemId);
+    if (!problem) {
+      return res.status(404).json({ message: "Problem not found" });
+    }
+    //first we store all the code and language in our database before giving the code to the judge0
+    //becoz we need to keep track of all submissions and their statuses
+    //becoz we need to calculate the testcases , runtime , memory
+    //pending state kardo
+    // Create a new submission
+    const submissionResult = await new Submission({
+      userId,
+      problemId: problemId,
+      code,
+      language,
+      testCasesTotal: problem.hiddenTestCases.length,
+    });
+    //now send it to Judge0
+    const languageId = getLanguageId(language);
+    const submissions = problem.hiddenTestCases.map((testcases) => ({
+      source_code: code,
+      language_id: languageId,
+      stdin: testcases.input,
+      expected_output: testcases.output,
+    }));
+
+    //now submit the code submission
+    const submitResult = await submitBatch(submissions);
+    //fetching the result token
+    const resultToken = submitResult.map((value) => value.token);
+    console.log("Result Tokens:", resultToken);
+    //now we update our submission Result
+    let testPassed = 0;
+    let runtime = 0;
+    let memory = 0;
+    let status = "accepted";
+    let message = "";
+    for (const test of resultToken) {
+      if (test.status._id == 3) {
+        testPassed += 1;
+        runtime += parseFloat(test.runtime);
+        memory = Math.max(memory, test.memory);
+      } else {
+        if (test.status._id == 4) {
+          status = "error";
+          message = test.stderr;
+        } else {
+          status = "wrong_answer";
+          message = test.stderr;
+        }
+      }
+    }
+
+    // Update the submission result
+    submissionResult.testCasesPassed = testPassed;
+    submissionResult.runtime = runtime;
+    submissionResult.memory = memory;
+    submissionResult.status = status;
+    submissionResult.errorMessage = message;
+    // Save the submission
+    await submissionResult.save();
+
+    return res
+      .status(201)
+      .json({
+        message: "Problem submitted successfully",
+        data: submissionResult,
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error submitting problem", error: error.message });
+  }
+};
+
+
+
+
+
+
+module.exports = {
+  submitProblem,
+};

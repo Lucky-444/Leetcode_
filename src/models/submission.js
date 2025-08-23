@@ -18,21 +18,21 @@ const submissionSchema = new mongoose.Schema(
     },
     language: {
       type: String,
-      enum: ["javascript", "python", "java", "c++", "go"],
+      enum: ["javascript", "python", "java", "cpp", "c++", "go"],
       required: true,
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected"],
+      enum: ["pending", "accepted", "wrong_answer" , "error"],
       default: "pending",
     },
     runtime: {
       type: Number, // in milliseconds
-      required: true,
+      default: 0,
     },
     memory: {
       type: Number, // in kilobytes or in Mb's
-      required: true,
+      default: 0,
     },
     errorMessage: {
       type: String,

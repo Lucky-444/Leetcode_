@@ -5,6 +5,7 @@ const connectDB = require('../src/config/db.js')
 const cookieparser = require('cookie-parser');
 const authRouter =  require('./routes/userAuth.js')
 const problemRouter = require('./routes/problemRoutes.js');
+const problemSubmissionRouter = require('./routes/problemSubmission.js')
 const redisClient = require("./config/redis.js");
 dotenv.config();
 
@@ -25,6 +26,7 @@ redisClient.connect().then(() => {
 
 app.use('/api/v1/users', authRouter);
 app.use('/api/v1/problem', problemRouter);
+app.use('/api/v1/problem/submit', problemSubmissionRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
