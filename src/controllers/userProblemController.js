@@ -209,7 +209,7 @@ const updateProblem = async (req, res) => {
   }
 };
 
-const deleteProblem = async(req , res) => {
+const deleteProblem = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -221,20 +221,16 @@ const deleteProblem = async(req , res) => {
     const deletedProblem = await Problem.findByIdAndDelete(id);
 
     if (!deletedProblem) {
-      return res
-        .status(404)
-        .json({ message: "Problem not found" });
+      return res.status(404).json({ message: "Problem not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Problem deleted successfully" });
+    return res.status(200).json({ message: "Problem deleted successfully" });
   } catch (error) {
     return res
       .status(500)
       .json({ message: "Error deleting problem", error: error.message });
   }
-}
+};
 
 const getProblemById = async (req, res) => {
   const { id } = req.params;
@@ -246,12 +242,13 @@ const getProblemById = async (req, res) => {
         .json({ message: "Problem ID is required or Invalid problem ID" });
     }
 
-    const problem = await Problem.findById(id);
+    //inside the select if you do -hiddenTestCases , it will exclude the hiddenTestCases field
+    const problem = await Problem.findById(id).select(
+      "_id title description tags visibleTestCases starterCode difficulty referenceSolution"
+    );
 
     if (!problem) {
-      return res
-        .status(404)
-        .json({ message: "Problem not found" });
+      return res.status(404).json({ message: "Problem not found" });
     }
 
     return res
@@ -264,14 +261,13 @@ const getProblemById = async (req, res) => {
   }
 };
 
-
 const getAllProblems = async (req, res) => {
   try {
-    const problems = await Problem.find({});
+    const problems = await Problem.find({}).select(
+      "_id title description tags"
+    );
     if (!problems || problems.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No problems found" });
+      return res.status(404).json({ message: "No problems found" });
     }
 
     return res
@@ -283,9 +279,6 @@ const getAllProblems = async (req, res) => {
       .json({ message: "Error fetching problems", error: error.message });
   }
 };
-
-
-
 
 module.exports = {
   createProblem,
