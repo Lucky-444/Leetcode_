@@ -281,12 +281,14 @@ const getAllProblems = async (req, res) => {
   }
 };
 
-
 const userSolvedProblems = async (req, res) => {
   const userId = req.result._id;
 
   try {
-    const user = await User.findById(userId).populate("problemSolved");
+    const user = await User.findById(userId).populate({
+      path: "problemSolved",
+      select: "_id title description tags difficulty"
+    });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
