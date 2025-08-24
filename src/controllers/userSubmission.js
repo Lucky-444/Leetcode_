@@ -1,6 +1,6 @@
 const Problem = require("../models/problem");
 const Submission = require("../models/submission");
-const { getLanguageId, submitBatch } = require("../utils/problemUtility");
+const { getLanguageId, submitBatch, submitToken } = require("../utils/problemUtility");
 
 const submitProblem = async (req, res) => {
   const { id } = req.params;
@@ -43,15 +43,18 @@ const submitProblem = async (req, res) => {
     //now submit the code submission
     const submitResult = await submitBatch(submissions);
     //fetching the result token
+
     const resultToken = submitResult.map((value) => value.token);
-    console.log("Result Tokens:", resultToken);
+
     //now we update our submission Result
+    const testResult = await submitToken(resultToken);
+
     let testPassed = 0;
     let runtime = 0;
     let memory = 0;
     let status = "accepted";
     let message = "";
-    for (const test of resultToken) {
+    for (const test of testResult) {
       if (test.status._id == 3) {
         testPassed += 1;
         runtime += parseFloat(test.runtime);

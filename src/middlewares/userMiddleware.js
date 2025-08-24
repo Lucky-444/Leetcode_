@@ -26,7 +26,7 @@ const userMiddleware = async (req, res, next) => {
     const { _id } = decoded;
     console.log("Decoded JWT:", decoded);
     // Check if _id is present
-    console.log("User ID:", _id);
+    // console.log("User ID:", _id);
     if (!_id) {
       return res.status(401).json({ message: "Unauthorized Access" });
     }
