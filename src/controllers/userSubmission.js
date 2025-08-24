@@ -67,13 +67,6 @@ const submitProblem = async (req, res) => {
         message = test.stderr || test.compile_output || test.message;
       }
     }
-
-
-    console.log("runtime:", runtime);
-    console.log("memory:", memory);
-    console.log("testPassed:", testPassed);
-    console.log("status:", status);
-
     // Update the submission result
     submissionResult.testCasesPassed = testPassed;
     submissionResult.runtime = runtime;
@@ -82,6 +75,18 @@ const submitProblem = async (req, res) => {
     submissionResult.errorMessage = message;
     // Save the submission
     await submissionResult.save();
+
+    //now we add the problemId into user's problemsolved array
+    //if the user already solved the problem before 
+    //then we dont add it to the array
+    //else we add it to user's problemsolved array
+    //we store user in req.result
+    //after login by the user
+
+    if(!req.result.problemSolved.includes(problemId)) {
+      req.result.problemSolved.push(problemId);
+      await req.result.save();
+    }
 
     return res
       .status(201)
@@ -95,8 +100,6 @@ const submitProblem = async (req, res) => {
       .json({ message: "Error submitting problem", error: error.message });
   }
 };
-
-
 
 
 

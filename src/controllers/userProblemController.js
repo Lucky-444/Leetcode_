@@ -1,4 +1,5 @@
 const Problem = require("../models/problem.js");
+const User = require("../models/user.js");
 const {
   getLanguageId,
   submitBatch,
@@ -280,10 +281,31 @@ const getAllProblems = async (req, res) => {
   }
 };
 
+
+const userSolvedProblems = async (req, res) => {
+  const userId = req.result._id;
+
+  try {
+    const user = await User.findById(userId).populate("problemSolved");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User solved problems fetched successfully", problemSolved: user.problemSolved });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error fetching user solved problems", error: error.message });
+  }
+};
+
 module.exports = {
   createProblem,
   updateProblem,
   deleteProblem,
   getProblemById,
   getAllProblems,
+  userSolvedProblems
 };
