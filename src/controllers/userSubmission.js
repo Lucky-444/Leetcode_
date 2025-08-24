@@ -55,20 +55,24 @@ const submitProblem = async (req, res) => {
     let status = "accepted";
     let message = "";
     for (const test of testResult) {
-      if (test.status._id == 3) {
+      if (test.status_id === 3) {   // ✅ Accepted
         testPassed += 1;
-        runtime += parseFloat(test.runtime);
+        runtime += parseFloat(test.time);   // Judge0 field is `time`, not `runtime`
         memory = Math.max(memory, test.memory);
+      } else if (test.status_id === 4) {   // ✅ Compilation error
+        status = "error";
+        message = test.stderr || test.compile_output || test.message;
       } else {
-        if (test.status._id == 4) {
-          status = "error";
-          message = test.stderr;
-        } else {
-          status = "wrong_answer";
-          message = test.stderr;
-        }
+        status = "wrong_answer";
+        message = test.stderr || test.compile_output || test.message;
       }
     }
+
+
+    console.log("runtime:", runtime);
+    console.log("memory:", memory);
+    console.log("testPassed:", testPassed);
+    console.log("status:", status);
 
     // Update the submission result
     submissionResult.testCasesPassed = testPassed;
