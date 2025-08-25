@@ -1,4 +1,5 @@
 const Problem = require("../models/problem.js");
+const Submission = require("../models/submission.js");
 const User = require("../models/user.js");
 const {
   getLanguageId,
@@ -303,11 +304,34 @@ const userSolvedProblems = async (req, res) => {
   }
 };
 
+
+const submittedProblem = async(req , res) => {
+  try{
+    const userId = req.result._id;
+    const problemId = req.params.problemId;
+    const submissions = await Submission.find({ userId, problemId });
+    if (!submissions || submissions.length === 0) {
+      return res.status(404).json({ message: "No submissions found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User submitted problems fetched successfully", submissions });
+  }catch(err){
+    return res
+      .status(500)
+      .json({ message: "Error fetching user submitted problems", error: err.message });
+  }
+}
+
+
+
 module.exports = {
   createProblem,
   updateProblem,
   deleteProblem,
   getProblemById,
   getAllProblems,
-  userSolvedProblems
+  userSolvedProblems,
+  submittedProblem,
 };

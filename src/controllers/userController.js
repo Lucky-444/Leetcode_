@@ -1,4 +1,5 @@
 const redisClient = require("../config/redis.js");
+const Submission = require("../models/submission.js");
 const User = require("../models/user.js");
 const validate = require("../utils/validator.js");
 const bcrypt = require("bcryptjs");
@@ -195,12 +196,27 @@ const getProfile = async (req, res) => {
   }
 };
 
+const deleteProfile = async(req , res) => {
+   try {
 
+    const user = await User.findByIdAndDelete(req.result._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    //delete all submission of the user
+    const submissions = await Submission.deleteMany({ userId: req.result._id });
+
+    res.status(200).json({ message: "Profile deleted successfully", data: submissions, user });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting profile", error });
+  }
+};
 
 
 module.exports = {
   registerUser,
   registerAdmin,
+  deleteProfile,
   loginUser,
   logoutUser,
   forgotPassword,

@@ -53,6 +53,10 @@ const submissionSchema = new mongoose.Schema(
   }
 );
 
+//making compound index
+// userId and problemId in ascending order
+submissionSchema.index({ userId: 1, problemId: 1 });
+
 const Submission = mongoose.model("Submission", submissionSchema);
 
 module.exports = Submission;

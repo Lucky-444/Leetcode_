@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Submission = require("./submission");
 
 const newUserSchema = new mongoose.Schema(
   {
@@ -40,6 +41,12 @@ const newUserSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+newUserSchema.post('findOneAndDelete', async function(userInfo) {
+  if (userInfo) {
+    await Submission.deleteMany({ userId: userInfo._id });
+  }
+});
 
 const User = mongoose.model("User", newUserSchema);
 
