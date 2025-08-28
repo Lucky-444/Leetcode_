@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
+const cors = require('cors')
 const connectDB = require('../src/config/db.js')
 const cookieparser = require('cookie-parser');
 const authRouter =  require('./routes/userAuth.js')
@@ -8,6 +9,13 @@ const problemRouter = require('./routes/problemRoutes.js');
 const problemSubmissionRouter = require('./routes/problemSubmission.js')
 const redisClient = require("./config/redis.js");
 dotenv.config();
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

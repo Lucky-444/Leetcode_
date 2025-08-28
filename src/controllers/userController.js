@@ -10,7 +10,7 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Request body is missing" });
     }
 
-    const { name, email, password, age } = req.body;
+    const { firstName, email, password } = req.body;
     //first validate the user inputs
     
     validate(req.body);
@@ -24,10 +24,9 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      name,
+      firstName,
       email,
       password: hashedPassword,
-      age,
       role: 'user',
     });
     await newUser.save();
@@ -43,9 +42,21 @@ const registerUser = async (req, res) => {
       secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
+    
+    const reply = {
+      firstName : newUser.firstName,
+      lastName : newUser.lastName || '',
+      emailId : newUser.email,
+      age : newUser.age || 15,
+      role : newUser.role,
+      problemSolved : newUser.problemSolved || [],
+      _id : newUser._id
+    }
+
+
     res
       .status(201)
-      .json({ message: "User registered successfully", user: newUser, token });
+      .json({ message: "User registered successfully", user: reply, token });
   } catch (error) {
     console.error("Register Error:", error);
     res.status(500).json({
@@ -131,7 +142,18 @@ const loginUser = async (req, res) => {
       secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.status(200).json({ message: "Login successful", user, token });
+
+    const reply = {
+      firstName : user.firstName,
+      lastName : user.lastName,
+      emailId : user.email,
+      age : user.age,
+      role : user.role,
+      problemSolved : user.problemSolved,
+      _id : user._id
+    }
+
+    res.status(200).json({ message: "Login successful", user: reply, token: token });
   } catch (error) {
     console.error("Login Error:", error);
     res.status(400).json({
@@ -211,6 +233,9 @@ const deleteProfile = async(req , res) => {
     res.status(500).json({ message: "Error deleting profile", error });
   }
 };
+
+
+
 
 
 module.exports = {

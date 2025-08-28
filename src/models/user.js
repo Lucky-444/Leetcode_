@@ -3,9 +3,13 @@ const Submission = require("./submission");
 
 const newUserSchema = new mongoose.Schema(
   {
-    name: {
+    firstName: {
       type: String,
       required: true,
+    },
+    lastName: {
+      type: String,
+      
     },
     email: {
       type: String,
@@ -18,8 +22,7 @@ const newUserSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      min: 0,
-      max: 120,
+      default: 15,
     },
     role: {
       type: String,

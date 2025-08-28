@@ -24,4 +24,8 @@ router.get('/profile', getProfile);
 // Delete Profile
 router.delete('/delete' , userMiddleware , deleteProfile)
 
+router.get('/checkAuth' , userMiddleware , (req , res) => {
+  res.status(200).json({ message: "User is authenticated", user: req.result});
+});
+
 module.exports = router;
