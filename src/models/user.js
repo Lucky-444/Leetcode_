@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Submission = require("./submission");
-
+const bcrypt = require("bcryptjs");
 const newUserSchema = new mongoose.Schema(
   {
     firstName: {
@@ -45,6 +45,18 @@ const newUserSchema = new mongoose.Schema(
   }
 );
 
+// 🔹 Hash password before saving
+newUserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next(); // only hash if password is new/modified
+
+  try {
+    const salt = await bcrypt.genSalt(10); // generate salt
+    this.password = await bcrypt.hash(this.password, salt); // hash password
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 // 🔹 Generate RoboHash avatar automatically if not provided
 newUserSchema.pre("save", function (next) {
   if (!this.image) {

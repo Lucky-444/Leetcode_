@@ -266,7 +266,7 @@ const getProblemById = async (req, res) => {
 const getAllProblems = async (req, res) => {
   try {
     const problems = await Problem.find({}).select(
-      "_id title description tags"
+      "_id title description tags difficulty"
     );
     if (!problems || problems.length === 0) {
       return res.status(404).json({ message: "No problems found" });
