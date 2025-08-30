@@ -246,7 +246,7 @@ const getProblemById = async (req, res) => {
 
     //inside the select if you do -hiddenTestCases , it will exclude the hiddenTestCases field
     const problem = await Problem.findById(id).select(
-      "_id title description tags visibleTestCases starterCode difficulty referenceSolution"
+      "_id title description tags visibleTestCases starterCode difficulty referenceSolution constraints"
     );
 
     if (!problem) {

@@ -10,6 +10,7 @@ const problemSchema = new mongoose.Schema(
       required: true,
     },
     tags: [{ type: String }],
+    
     visibleTestCases: [
       {
         input: { type: String, required: true },
@@ -40,6 +41,10 @@ const problemSchema = new mongoose.Schema(
         completeCode: { type: String, required: true },
       },
     ],
+    constraints: {
+      timeLimit: { type: String, required: true },
+      memoryLimit: { type: String, required: true },
+    },
   },
   {
     timestamps: true,
