@@ -88,11 +88,19 @@ const submitProblem = async (req, res) => {
       await req.result.save();
     }
 
+
+    const accepted = status === "accepted";
     return res
       .status(201)
       .json({
-        message: "Problem submitted successfully",
+        message,
         data: submissionResult,
+        accepted,
+        totalTestCases: problem.hiddenTestCases.length,
+        passedTestCases: submissionResult.testCasesPassed,
+        runtime: submissionResult.runtime,
+        memory: submissionResult.memory,
+        msg: "Problem submitted successfully",
       });
   } catch (error) {
     return res
@@ -161,7 +169,16 @@ const runCode = async(req , res) => {
       }
     }
 
-    return res.status(200).json({ message: "Code run successfully", data: {testResult , status}});
+    const accepted = status === "accepted";
+
+    return res.status(200).json({
+      accepted,
+      totalTestCases: testResult.length,
+      passedTestCases: testPassed,
+      runtime,
+      memory,
+      message,  
+    });
   } catch (error) {
     return res.status(500).json({ message: "Error running code", error: error.message });
   }
