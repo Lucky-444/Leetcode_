@@ -172,12 +172,11 @@ const runCode = async(req , res) => {
     const accepted = status === "accepted";
 
     return res.status(200).json({
-      accepted,
-      totalTestCases: testResult.length,
-      passedTestCases: testPassed,
+      success : status ,
+      testCases : testResult,
       runtime,
       memory,
-      message,  
+      message 
     });
   } catch (error) {
     return res.status(500).json({ message: "Error running code", error: error.message });
