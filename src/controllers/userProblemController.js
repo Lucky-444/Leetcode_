@@ -269,6 +269,7 @@ const getAllProblems = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10; // Default to 10 problems per page
     const skip = (page - 1) * limit; // Calculate how many documents to skip
 
+    // Fetch problems with pagination and select only necessary fields
     const problems = await Problem.find({})
       .select("_id title description tags difficulty")
       .skip(skip)
@@ -276,7 +277,8 @@ const getAllProblems = async (req, res) => {
 
 
     const totalProblems = await Problem.countDocuments(); // Get total count for pagination info
-
+   
+    
     if (!problems || problems.length === 0) {
       return res.status(404).json({ message: "No problems found" });
     }
