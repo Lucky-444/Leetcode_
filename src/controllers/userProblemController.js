@@ -265,16 +265,30 @@ const getProblemById = async (req, res) => {
 
 const getAllProblems = async (req, res) => {
   try {
-    const problems = await Problem.find({}).select(
-      "_id title description tags difficulty"
-    );
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 problems per page
+    const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+    const problems = await Problem.find({})
+      .select("_id title description tags difficulty")
+      .skip(skip)
+      .limit(limit);
+
+      
+    const totalProblems = await Problem.countDocuments(); // Get total count for pagination info
+
     if (!problems || problems.length === 0) {
       return res.status(404).json({ message: "No problems found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "All problems fetched successfully", problems });
+    return res.status(200).json({
+      message: "Problems fetched successfully",
+      problems,
+      currentPage: page,
+      totalPages: Math.ceil(totalProblems / limit),
+      totalProblems,
+      hasMore: page * limit < totalProblems, // Indicate if there are more pages
+    });
   } catch (error) {
     return res
       .status(500)
@@ -288,25 +302,26 @@ const userSolvedProblems = async (req, res) => {
   try {
     const user = await User.findById(userId).populate({
       path: "problemSolved",
-      select: "_id title description tags difficulty"
+      select: "_id title description tags difficulty",
     });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "User solved problems fetched successfully", problemSolved: user.problemSolved });
+    return res.status(200).json({
+      message: "User solved problems fetched successfully",
+      problemSolved: user.problemSolved,
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching user solved problems", error: error.message });
+    return res.status(500).json({
+      message: "Error fetching user solved problems",
+      error: error.message,
+    });
   }
 };
 
-
-const submittedProblem = async(req , res) => {
-  try{
+const submittedProblem = async (req, res) => {
+  try {
     const userId = req.result._id;
     const problemId = req.params.problemId;
     const submissions = await Submission.find({ userId, problemId });
@@ -314,17 +329,17 @@ const submittedProblem = async(req , res) => {
       return res.status(404).json({ message: "No submissions found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "User submitted problems fetched successfully", submissions });
-  }catch(err){
-    return res
-      .status(500)
-      .json({ message: "Error fetching user submitted problems", error: err.message });
+    return res.status(200).json({
+      message: "User submitted problems fetched successfully",
+      submissions,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Error fetching user submitted problems",
+      error: err.message,
+    });
   }
-}
-
-
+};
 
 module.exports = {
   createProblem,
