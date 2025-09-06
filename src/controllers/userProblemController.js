@@ -274,7 +274,7 @@ const getAllProblems = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-      
+
     const totalProblems = await Problem.countDocuments(); // Get total count for pagination info
 
     if (!problems || problems.length === 0) {
@@ -300,18 +300,40 @@ const userSolvedProblems = async (req, res) => {
   const userId = req.result._id;
 
   try {
-    const user = await User.findById(userId).populate({
-      path: "problemSolved",
-      select: "_id title description tags difficulty",
-    });
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 problems per page
+    const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+    // We need to find the user first to get their problemSolved array
+    const user = await User.findById(userId).select('problemSolved');
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Extract the problem IDs from the user's solved list
+    const solvedProblemIds = user.problemSolved;
+
+    // Now, fetch the detailed problem objects for these IDs with pagination
+    // and select only the necessary fields
+    const problems = await Problem.find({
+      _id: { $in: solvedProblemIds }
+    })
+    .select("_id title description tags difficulty") // Select only relevant fields
+    .skip(skip)
+    .limit(limit);
+
+    const totalSolvedProblems = solvedProblemIds.length; // Total count of solved problems
+
     return res.status(200).json({
       message: "User solved problems fetched successfully",
-      problemSolved: user.problemSolved,
+      problemSolved: problems, // Now paginated problems
+      currentPage: page,
+      totalPages: Math.ceil(totalSolvedProblems / limit),
+      totalProblems: totalSolvedProblems,
+      hasMore: page * limit < totalSolvedProblems,
     });
+
   } catch (error) {
     return res.status(500).json({
       message: "Error fetching user solved problems",
